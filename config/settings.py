@@ -79,7 +79,10 @@ def load_settings(config_path: str | Path | None = None) -> Settings:
     FileNotFoundError : config file missing.
     ValueError        : evaluation weights do not sum to 1.0.
     """
-    load_dotenv(ROOT / ".env")  # no-op if .env absent; never raises
+    # override=True so a real key in .env wins over a stale/placeholder value
+    # already exported in the shell environment (e.g. GROQ_API_KEY=your-key-here).
+    # Without this, dotenv keeps the pre-existing env var and the real key is ignored.
+    load_dotenv(ROOT / ".env", override=True)  # no-op if .env absent; never raises
 
     cfg_file = Path(config_path) if config_path else ROOT / "config" / "config.yaml"
     if not cfg_file.exists():

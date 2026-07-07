@@ -25,7 +25,7 @@ ollama:
 embedding:
   # "auto" preference order: ollama (if reachable) -> sentence-transformers
   # (if importable) -> TF-IDF fallback. Force with any explicit backend name.
-  backend: auto            # auto | ollama | sentence_transformer | tfidf
+  backend: tfidf           # auto | ollama | sentence_transformer | tfidf
   st_model: sentence-transformers/all-MiniLM-L6-v2
   tfidf_max_features: 4096
 
@@ -37,7 +37,7 @@ retrieval:
 generation:
   # "auto" preference: a cloud provider with a real key -> local ollama (if
   # reachable) -> deterministic mock. Force with any explicit provider name.
-  provider: auto              # auto | ollama | groq | openai | gemini | mock
+  provider: groq              # auto | ollama | groq | openai | gemini | mock
   model:
     groq: llama-3.1-8b-instant
     openai: gpt-4o-mini
