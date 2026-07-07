@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Hiver AI Email Eval — dependencies
+#
+# The project is designed to RUN with only the "core" block installed.
+# Everything under "optional" upgrades a fallback to its real counterpart.
+# This is deliberate: a production system must degrade gracefully when an
+# optional model/library/API is unavailable (see README → Design Decisions).
+# ─────────────────────────────────────────────────────────────────────────
+
+# ---- core (required; all pure-python or prebuilt wheels) ----
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3        # TF-IDF fallback embedder + cosine + metrics helpers
+faiss-cpu>=1.7           # vector index (real ANN search)
+pyyaml>=6.0              # config file parsing
+python-dotenv>=1.0       # load API keys from .env
+
+# ---- optional: real semantic embeddings ----
+# Upgrades the Embedder from TF-IDF (lexical) to transformer embeddings.
+# sentence-transformers>=2.2
+
+# ---- optional: real BERTScore ----
+# Upgrades Metric 2 from the lexical-overlap fallback to true BERTScore.
+# bert-score>=0.3.13
+
+# ---- optional: real LLM providers (pick one; only need its SDK) ----
+# groq>=0.11               # fastest + cheapest for an assessment
+# openai>=1.0
+# google-generativeai>=0.7
+
+# ---- optional: extra lexical metrics (diagnostic only) ----
+# rouge-score>=0.1.2

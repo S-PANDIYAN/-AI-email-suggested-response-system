@@ -1,0 +1,69 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Central configuration.  Everything tunable lives here, NOT in code.
+# Rationale: changing k, weights, or the model must never require editing
+# Python. This makes experiments reproducible (commit the yaml) and lets a
+# non-author operate the system.
+# ═══════════════════════════════════════════════════════════════════════════
+
+seed: 42                      # global determinism for dataset + fallbacks
+
+paths:
+  dataset_csv: dataset/data/emails.csv
+  index_dir: embeddings/index
+  outputs_dir: outputs
+
+dataset:
+  n_pairs: 100                # target number of email/reply pairs
+  eval_holdout: 20            # how many pairs to evaluate on (test split)
+
+ollama:
+  base_url: http://localhost:11434
+  embed_model: embeddinggemma:latest      # 768-dim local embeddings
+  chat_model: qwen2.5:7b                   # local chat model for gen + judge
+  timeout_s: 120
+
+embedding:
+  # "auto" preference order: ollama (if reachable) -> sentence-transformers
+  # (if importable) -> TF-IDF fallback. Force with any explicit backend name.
+  backend: auto            # auto | ollama | sentence_transformer | tfidf
+  st_model: sentence-transformers/all-MiniLM-L6-v2
+  tfidf_max_features: 4096
+
+retrieval:
+  top_k: 3                    # how many past cases to ground each generation
+  # We exclude the query's own id at eval time to prevent label leakage.
+  exclude_self: true
+
+generation:
+  # "auto" preference: a cloud provider with a real key -> local ollama (if
+  # reachable) -> deterministic mock. Force with any explicit provider name.
+  provider: auto              # auto | ollama | groq | openai | gemini | mock
+  model:
+    groq: llama-3.1-8b-instant
+    openai: gpt-4o-mini
+    gemini: gemini-1.5-flash
+  temperature: 0.3            # low -> consistent, professional support tone
+  max_tokens: 400
+
+evaluation:
+  # LLM judge backend: "auto" reuses the generation provider; "heuristic"
+  # forces the deterministic offline judge (used when no API key present).
+  judge_backend: auto         # auto | heuristic
+  bertscore_backend: auto     # auto (real bert-score) | fallback
+  # Final weighted score. MUST sum to 1.0 (validated at load time).
+  weights:
+    llm_judge: 0.50           # closest proxy to human judgement -> highest
+    bertscore: 0.30           # robust semantic overlap, model-based
+    cosine: 0.20              # cheap sanity floor, embedding-level similarity
+  # LLM judge sub-rubric (each scored 1-5 by the judge, then averaged).
+  judge_rubric:
+    - correctness
+    - professionalism
+    - empathy
+    - completeness
+    - grammar
+    - tone
+    - actionability
+
+logging:
+  level: INFO                 # DEBUG | INFO | WARNING | ERROR
